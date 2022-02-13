@@ -1,5 +1,5 @@
 const express = require("express");
-const Permanent = require("../Models/permanent");
+const School = require("../Models/school");
 const router = new express.Router();
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
@@ -46,8 +46,8 @@ router.post("/substitutes/works/apply", async (req, res) => {
     const work = await Work.findById(req.body.workId);
     await work.addApply(substitute);
     await substitute.addWork(work);
-    const permanent = await Permanent.findById(work.userId);
-    await permanent.updateWork(req.body.workId, work);
+    const school = await School.findById(work.userId);
+    await school.updateWork(req.body.workId, work);
     res.send({ message: "added" });
   } catch (error) {
     console.log(error);
@@ -64,8 +64,8 @@ router.put("/substitutes", async (req, res) => {
     for (let i = 0; i < substitute.works.length; i++) {
       const work = await Work.findById(substitute.works[i].work.id.toString());
       await work.updateApply(req.body.id, substitute);
-      const permanent = await Permanent.findById(work.userId);
-      permanent.updateWork(work.id.toString(), work);
+      const school = await School.findById(work.userId);
+      school.updateWork(work.id.toString(), work);
     }
 
     res.send(substitute);

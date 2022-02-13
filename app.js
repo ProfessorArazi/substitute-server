@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("./src/db/mongoose");
-const permanentRouter = require("./src/routers/permanent");
+const schoolRouter = require("./src/routers/school");
 const substituteRouter = require("./src/routers/substitute");
 
 const app = express();
@@ -12,7 +12,7 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
-app.use(permanentRouter);
+app.use(schoolRouter);
 app.use(substituteRouter);
 
 app.get("/", (req, res) => {

@@ -11,8 +11,8 @@ const {
   updateWork,
 } = require("../shared/methods/methods");
 
-const permanentSchema = new mongoose.Schema({
-  fullName: {
+const schoolSchema = new mongoose.Schema({
+  name: {
     type: String,
     required: true,
     trim: true,
@@ -22,16 +22,7 @@ const permanentSchema = new mongoose.Schema({
       }
     },
   },
-  subject: {
-    type: String,
-    required: true,
-    trim: true,
-    validate(value) {
-      if (value.length === 0) {
-        throw new Error("nothing here");
-      }
-    },
-  },
+
   ageGroup: {
     type: Number,
     required: true,
@@ -51,16 +42,7 @@ const permanentSchema = new mongoose.Schema({
       }
     },
   },
-  school: {
-    type: String,
-    required: true,
-    trim: true,
-    validate(value) {
-      if (value.length === 0) {
-        throw new Error("nothing here");
-      }
-    },
-  },
+
   email: {
     type: String,
     required: true,
@@ -121,46 +103,45 @@ const permanentSchema = new mongoose.Schema({
   ],
 });
 
-permanentSchema.plugin(uniqueValidator);
-permanentSchema.methods.generateAuthToken = async function () {
+schoolSchema.methods.generateAuthToken = async function () {
   generateAuthToken(this);
 };
 
-permanentSchema.methods.addWork = async function (work) {
+schoolSchema.methods.addWork = async function (work) {
   addWork(this, work);
 };
 
-permanentSchema.methods.updateWork = async function (id, work) {
+schoolSchema.methods.updateWork = async function (id, work) {
   updateWork(this, id, work);
 };
 
-permanentSchema.methods.deleteWork = async function (id) {
+schoolSchema.methods.deleteWork = async function (id) {
   deleteWork(this, id);
 };
 
-permanentSchema.statics.findByCredentials = async (email, password) => {
+schoolSchema.statics.findByCredentials = async (email, password) => {
   try {
-    const permanent = await Permanent.findOne({ email });
+    const school = await School.findOne({ email });
 
-    if (!permanent) {
+    if (!school) {
       throw new Error("Unable to login");
     }
 
-    const isMatch = await bcrypt.compare(password, permanent.password);
+    const isMatch = await bcrypt.compare(password, school.password);
     if (!isMatch) {
       throw new Error("Unable to login");
     }
-    return permanent;
+    return school;
   } catch (e) {
     return e;
   }
 };
 
-permanentSchema.pre("save", async function (next) {
+schoolSchema.pre("save", async function (next) {
   hashPassword(this);
   next();
 });
 
-const Permanent = mongoose.model("Permanent", permanentSchema);
+const School = mongoose.model("School", schoolSchema);
 
-module.exports = Permanent;
+module.exports = School;

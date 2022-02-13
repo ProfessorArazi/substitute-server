@@ -1,16 +1,16 @@
 const express = require("express");
 const router = new express.Router();
-const Permanent = require("../Models/permanent");
+const School = require("../Models/school");
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 
-router.post("/permanents", async (req, res) => {
-  const permanent = new Permanent(req.body);
+router.post("/schools", async (req, res) => {
+  const school = new School(req.body);
   try {
-    await permanent.save();
-    const token = await permanent.generateAuthToken();
+    await school.save();
+    const token = await school.generateAuthToken();
     res.status(201).send({
-      permanent,
+      school,
       token,
     });
   } catch (error) {
@@ -18,16 +18,16 @@ router.post("/permanents", async (req, res) => {
   }
 });
 
-router.post("/permanents/login", async (req, res) => {
+router.post("/schools/login", async (req, res) => {
   try {
-    const permanent = await Permanent.findByCredentials(
+    const school = await School.findByCredentials(
       req.body.email,
       req.body.password
     );
 
-    const token = await permanent.generateAuthToken();
+    const token = await school.generateAuthToken();
     res.send({
-      permanent,
+      school,
       token,
     });
   } catch (error) {
@@ -35,75 +35,75 @@ router.post("/permanents/login", async (req, res) => {
   }
 });
 
-router.post("/permanents/work", async (req, res) => {
+router.post("/schools/work", async (req, res) => {
   const work = new Work(req.body);
   const id = work.userId;
   try {
     await work.save();
-    const permanent = await Permanent.findById(id);
-    await permanent.addWork(work);
+    const school = await School.findById(id);
+    await school.addWork(work);
     res.send({ message: "good" });
   } catch (error) {
     console.log(error);
   }
 });
 
-router.get("/permanents/works/:id", async (req, res) => {
+router.get("/schools/works/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const permanent = await Permanent.findById(id);
-    res.send({ works: permanent.works });
+    const school = await School.findById(id);
+    res.send({ works: school.works });
   } catch (error) {
     console.log(error);
   }
 });
 
-router.put("/permanents", async (req, res) => {
+router.put("/schools", async (req, res) => {
   try {
-    const permanent = await Permanent.findOneAndUpdate(
+    const school = await School.findOneAndUpdate(
       req.body.id,
       req.body.changes,
       { new: true }
     );
-    res.send(permanent);
+    res.send(school);
   } catch (error) {
     console.log(error);
   }
 });
 
-router.put("/permanents/works", async (req, res) => {
-  const permanent = await Permanent.findById(req.body.userId);
+router.put("/schools/works", async (req, res) => {
+  const school = await School.findById(req.body.userId);
   try {
     const work = await Work.findOneAndUpdate(req.body.id, req.body.changes, {
       new: true,
     });
-    await permanent.updateWork((req.body.id, work));
+    await school.updateWork((req.body.id, work));
     res.send({ work });
   } catch (error) {
     console.log(error);
   }
 });
 
-router.delete("/permanents/works/:userId/:id", async (req, res) => {
-  const permanent = await Permanent.findById(req.params.userId);
+router.delete("/schools/works/:userId/:id", async (req, res) => {
+  const school = await School.findById(req.params.userId);
   try {
     await Work.deleteOne({ id: req.params.id });
-    await permanent.deleteWork(req.params.id);
+    await school.deleteWork(req.params.id);
     res.send({ message: "delete" });
   } catch (error) {
     console.log(error);
   }
 });
 
-router.post("/permanents/works/pick", async (req, res) => {
-  // workId,permanentId,pickedTeacherId,...unpickedIds
+router.post("/schools/works/pick", async (req, res) => {
+  // workId,schoolId,pickedTeacherId,...unpickedIds
   // לחשוב על תיקונים
   const work = await Work.findById(req.body[0]);
   try {
     work.taken = req.body[2];
     await work.save();
-    const permanent = await Permanent.findById(req.body[1]);
-    await permanent.updateWork(req.body[0], work);
+    const school = await School.findById(req.body[1]);
+    await school.updateWork(req.body[0], work);
     for (let i = 2; i < req.body.length; i++) {
       const substitute = await Substitute.findById(req.body[i]);
       await substitute.updateWork(req.body[0], work);
