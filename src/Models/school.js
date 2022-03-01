@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 const validator = require("validator");
 const zxcvbn = require("zxcvbn");
 const bcrypt = require("bcryptjs");
@@ -23,15 +22,6 @@ const schoolSchema = new mongoose.Schema({
     },
   },
 
-  ageGroup: {
-    type: Number,
-    required: true,
-    validate(value) {
-      if (value < 1 || value > 3) {
-        throw new Error("wrong group");
-      }
-    },
-  },
   city: {
     type: String,
     required: true,
@@ -104,7 +94,7 @@ const schoolSchema = new mongoose.Schema({
 });
 
 schoolSchema.methods.generateAuthToken = async function () {
-  generateAuthToken(this);
+  return generateAuthToken(this);
 };
 
 schoolSchema.methods.addWork = async function (work) {

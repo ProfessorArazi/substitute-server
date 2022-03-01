@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 
 const workSchema = new mongoose.Schema({
   userId: {
@@ -8,7 +7,6 @@ const workSchema = new mongoose.Schema({
   },
   subject: {
     type: String,
-    required: true,
     trim: true,
     validate(value) {
       if (value.length === 0) {
@@ -76,8 +74,6 @@ const workSchema = new mongoose.Schema({
     default: "",
   },
 });
-
-workSchema.plugin(uniqueValidator);
 
 workSchema.methods.addApply = async function (apply) {
   try {

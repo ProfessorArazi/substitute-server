@@ -4,43 +4,87 @@ const router = new express.Router();
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 
-router.get("/works", async (req, res) => {
-  const works = await Work.find();
+router.get("/works/:id", async (req, res) => {
+  const now = new Date();
+  let works = await Work.find({ date: { $gte: now }, taken: "" });
+
+  if (req.params.id !== "!") {
+    works = works.filter(
+      (work) =>
+        !work.applied.find(
+          (apply) => apply.apply._id.toString() === req.params.id
+        )
+    );
+  }
+
   res.status(201).send({ works });
 });
 
-router.post("/substitutes", async (req, res) => {
-  const substitute = new Substitute(req.body);
+router.post("/sub", async (req, res) => {
+  const sub = new Substitute(req.body);
   try {
-    await substitute.save();
-    const token = await substitute.generateAuthToken();
+    await sub.save();
+    const token = await sub.generateAuthToken();
     res.status(201).send({
-      substitute,
+      sub: {
+        _id: sub._id,
+        city: sub.city,
+        email: sub.email,
+        name: sub.name,
+        notifications: sub.notifications,
+        phone: sub.phone,
+        works: sub.works,
+      },
       token,
+      type: "sub",
     });
   } catch (error) {
     console.log(error);
   }
 });
 
-router.post("/substitute/login", async (req, res) => {
+router.post("/sub/login", async (req, res) => {
   try {
-    const substitute = await Substitute.findByCredentials(
+    const sub = await Substitute.findByCredentials(
       req.body.email,
       req.body.password
     );
 
-    const token = await substitute.generateAuthToken();
+    const token = await sub.generateAuthToken();
+
+    const now = new Date();
+    let works = await Work.find({ date: { $gte: now }, taken: "" });
+
+    works = works.filter(
+      (work) =>
+        !work.applied.find(
+          (apply) => apply.apply._id.toString() === sub._id.toString()
+        )
+    );
+
     res.send({
-      substitute,
-      token,
+      sub: {
+        sub: {
+          _id: sub._id,
+          city: sub.city,
+          email: sub.email,
+          name: sub.name,
+          notifications: sub.notifications,
+          phone: sub.phone,
+          works: sub.works,
+        },
+        token,
+        works,
+        type: "sub",
+      },
     });
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 });
 
-router.post("/substitutes/works/apply", async (req, res) => {
+router.post("/sub/works/apply", async (req, res) => {
   const substitute = await Substitute.findById(req.body.substituteId);
   try {
     const work = await Work.findById(req.body.workId);
@@ -48,13 +92,27 @@ router.post("/substitutes/works/apply", async (req, res) => {
     await substitute.addWork(work);
     const school = await School.findById(work.userId);
     await school.updateWork(req.body.workId, work);
-    res.send({ message: "added" });
+    const token = await substitute.generateAuthToken();
+    res.send({
+      sub: {
+        _id: substitute._id,
+
+        city: substitute.city,
+        email: substitute.email,
+        name: substitute.name,
+        notifications: substitute.notifications,
+        phone: substitute.phone,
+        works: substitute.works,
+      },
+      token,
+      type: "sub",
+    });
   } catch (error) {
     console.log(error);
   }
 });
 
-router.put("/substitutes", async (req, res) => {
+router.put("/sub", async (req, res) => {
   try {
     const substitute = await Substitute.findOneAndUpdate(
       req.body.id,
@@ -74,7 +132,7 @@ router.put("/substitutes", async (req, res) => {
   }
 });
 
-router.get("/substitutes/works/:id", async (req, res) => {
+router.get("/sub/works/:id", async (req, res) => {
   const id = req.params.id;
   try {
     const substitute = await Substitute.findById(id);

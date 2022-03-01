@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 const validator = require("validator");
 const zxcvbn = require("zxcvbn");
 const bcrypt = require("bcryptjs");
@@ -12,7 +11,7 @@ const {
 } = require("../shared/methods/methods");
 
 const substituteSchema = new mongoose.Schema({
-  fullName: {
+  name: {
     type: String,
     required: true,
     trim: true,
@@ -22,25 +21,7 @@ const substituteSchema = new mongoose.Schema({
       }
     },
   },
-  subject: {
-    type: String,
-    required: true,
-    trim: true,
-    validate(value) {
-      if (value.length === 0) {
-        throw new Error("nothing here");
-      }
-    },
-  },
-  ageGroup: {
-    type: Number,
-    required: true,
-    validate(value) {
-      if (value < 1 || value > 3) {
-        throw new Error("wrong group");
-      }
-    },
-  },
+
   city: {
     type: String,
     required: true,
@@ -113,10 +94,8 @@ const substituteSchema = new mongoose.Schema({
   ],
 });
 
-substituteSchema.plugin(uniqueValidator);
-
 substituteSchema.methods.generateAuthToken = async function () {
-  generateAuthToken(this);
+  return generateAuthToken(this);
 };
 
 substituteSchema.methods.addWork = async function (work) {

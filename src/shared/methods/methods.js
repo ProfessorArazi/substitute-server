@@ -10,7 +10,7 @@ const generateAuthToken = async (user) => {
     );
     user.tokens = user.tokens.concat({ token });
     await user.save();
-    return user.tokens[user.tokens.length - 1];
+    return token;
   } catch (e) {
     console.log(e);
   }
@@ -20,7 +20,7 @@ const addWork = async (user, work) => {
   try {
     user.works = user.works.concat({
       work: {
-        id: work._id,
+        _id: work._id,
         userId: work.userId,
         subject: work.subject,
         date: work.date,
