@@ -3,81 +3,20 @@ const router = new express.Router();
 const School = require("../Models/school");
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
+const { sendSchool } = require("../shared/methods/methods");
+const { isAuthenticatedSchool } = require("../shared/middlewares/middlewares");
 
-router.post("/school", async (req, res) => {
-  const school = new School(req.body);
-  try {
-    await school.save();
-    const token = await school.generateAuthToken();
-    res.status(201).send({
-      school,
-      token,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-router.post("/school/login", async (req, res) => {
-  try {
-    const school = await School.findByCredentials(
-      req.body.email,
-      req.body.password
-    );
-
-    const token = await school.generateAuthToken();
-    res.send({
-      school: {
-        school: {
-          ageGroup: school.ageGroup,
-          city: school.city,
-          name: school.name,
-          notifications: school.notifications,
-          phone: school.phone,
-          works: school.works,
-          id: school.id,
-        },
-        token,
-        type: "school",
-      },
-    });
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
+router.post("/school/login", async (req, res) => {});
 
 router.post("/school/work", async (req, res) => {
   const work = new Work(req.body);
-  const id = work.userId;
   try {
     await work.save();
-    const school = await School.findById(id);
+    const school = req.user;
     await school.addWork(work);
     const token = school.tokens[school.tokens.length - 1].token;
 
-    res.send({
-      school: {
-        ageGroup: school.ageGroup,
-        city: school.city,
-        name: school.name,
-        notifications: school.notifications,
-        phone: school.phone,
-        works: school.works,
-        id: school.id,
-      },
-      token,
-      type: "school",
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-router.get("/school/works/:id", async (req, res) => {
-  const id = req.params.id;
-  try {
-    const school = await School.findById(id);
-    res.send({ works: school.works });
+    sendSchool(school, false, token, res);
   } catch (error) {
     console.log(error);
   }
@@ -92,94 +31,81 @@ router.put("/school", async (req, res) => {
     );
     const token = school.tokens[school.tokens.length - 1].token;
 
-    res.send({
-      school: {
-        ageGroup: school.ageGroup,
-        city: school.city,
-        name: school.name,
-        notifications: school.notifications,
-        phone: school.phone,
-        works: school.works,
-        id: school.id,
-      },
-      token,
-      type: "school",
-    });
+    sendSchool(school, false, token, res);
   } catch (error) {
     console.log(error);
   }
 });
 
 router.put("/school/work", async (req, res) => {
-  const school = await School.findById(req.body.userId);
+  const school = req.user;
   try {
     const work = await Work.findOneAndUpdate(req.body.id, req.body.changes, {
       new: true,
     });
+    await work.set("taken", { _id: "" });
     await work.set("applied", undefined);
     await work.save();
     await school.updateWork(req.body.id, work);
     const token = school.tokens[school.tokens.length - 1].token;
 
-    res.send({
-      school: {
-        ageGroup: school.ageGroup,
-        city: school.city,
-        name: school.name,
-        notifications: school.notifications,
-        phone: school.phone,
-        works: school.works,
-        id: school.id,
-      },
-      token,
-      type: "school",
-    });
+    sendSchool(school, false, token, res);
   } catch (error) {
     console.log(error);
   }
 });
 
-router.delete("/school/works/:userId/:id", async (req, res) => {
-  const school = await School.findById(req.params.userId);
+router.post("/school/works/:userId/:id", async (req, res) => {
+  const school = req.user;
   try {
     await Work.deleteOne({ id: req.params.id });
 
     await school.deleteWork(req.params.id);
     const token = school.tokens[school.tokens.length - 1].token;
-    res.send({
-      school: {
-        ageGroup: school.ageGroup,
-        city: school.city,
-        name: school.name,
-        notifications: school.notifications,
-        phone: school.phone,
-        works: school.works,
-        id: school.id,
-      },
-      token,
-      type: "school",
-    });
+    sendSchool(school, false, token, res);
   } catch (error) {
     console.log(error);
   }
 });
 
 router.post("/school/works/pick", async (req, res) => {
-  // workId,schoolId,pickedTeacherId,...unpickedIds
-  // לחשוב על תיקונים
-  const work = await Work.findById(req.body[0]);
+  const { workId, pickedTeacherId } = req.body;
+
+  const work = await Work.findById(workId);
   try {
-    work.taken = req.body[2];
+    const sub = await Substitute.findById(pickedTeacherId);
+    work.taken = sub;
     await work.save();
-    const school = await School.findById(req.body[1]);
-    await school.updateWork(req.body[0], work);
-    for (let i = 2; i < req.body.length; i++) {
-      const substitute = await Substitute.findById(req.body[i]);
-      await substitute.updateWork(req.body[0], work);
+    const school = req.user;
+    await school.updateWork(workId, work);
+    for (let i = 0; i < work.applied.length; i++) {
+      const substitute = await Substitute.findById(
+        work.applied[i].apply._id.toString()
+      );
+      await substitute.updateWork(workId, work);
     }
+    const token = school.tokens[school.tokens.length - 1].token;
+    sendSchool(school, false, token, res);
   } catch (error) {
     console.log(error);
   }
+});
+
+router.post("/school/rate", async (req, res) => {
+  const { workId, subId, grade } = req.body;
+  const school = req.user;
+  const work = await Work.findById(workId);
+  // if (!work.grade) {
+  work.grade = +grade;
+  await work.save();
+  await school.updateWork(workId, work);
+  const sub = await Substitute.findById(subId);
+  sub.grades = sub.grades.concat(grade);
+  await sub.save();
+  const token = school.tokens[school.tokens.length - 1].token;
+
+  sendSchool(school, false, token, res);
+  // }
 });
 
 module.exports = router;

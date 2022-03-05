@@ -84,6 +84,8 @@ const substituteSchema = new mongoose.Schema({
     },
   ],
 
+  grades: [Number],
+
   tokens: [
     {
       token: {
@@ -102,18 +104,9 @@ substituteSchema.methods.addWork = async function (work) {
   addWork(this, work);
 };
 
-substituteSchema.methods.updateWork = async function (work) {
-  updateWork(this, work);
+substituteSchema.methods.updateWork = async function (workId, work) {
+  updateWork(this, workId, work);
 };
-
-// substituteSchema.methods.deleteWork = async function (id) {
-//   try {
-//     this.works = this.works.filter((x) => x.work._id.toString() !== id);
-//     await this.save();
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
 
 substituteSchema.statics.findByCredentials = async (email, password) => {
   try {

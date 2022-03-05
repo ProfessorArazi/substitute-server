@@ -70,14 +70,37 @@ const workSchema = new mongoose.Schema({
     },
   ],
   taken: {
-    type: String,
-    default: "",
+    type: Object,
+    default: {
+      _id: "",
+    },
+  },
+
+  grade: {
+    type: Number,
   },
 });
 
 workSchema.methods.addApply = async function (apply) {
+  const grade = {};
+  grade.votes = apply.grades.length;
+  grade.grade =
+    grade.votes === 0
+      ? 0
+      : grade.votes === 1
+      ? apply.grades[0]
+      : apply.grades.reduce((a, b) => a + b) / grade.votes;
   try {
-    this.applied = this.applied.concat({ apply });
+    this.applied = this.applied.concat({
+      apply: {
+        city: apply.city,
+        email: apply.email,
+        name: apply.name,
+        phone: apply.phone,
+        _id: apply._id,
+        grades: grade,
+      },
+    });
     await this.save();
   } catch (e) {
     console.log(e);
@@ -92,7 +115,6 @@ workSchema.methods.updateApply = async function (id, apply) {
       { apply }
     );
     await this.save();
-    console.log(this.applied);
   } catch (e) {
     console.log(e);
   }
