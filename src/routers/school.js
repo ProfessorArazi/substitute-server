@@ -5,6 +5,11 @@ const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 const { sendSchool, clearNotifications } = require("../shared/methods/methods");
 
+router.post("/school/works", async (req, res) => {
+  const token = req.user.tokens[req.user.tokens.length - 1].token;
+  sendSchool(req.user, token, res);
+});
+
 router.post("/school/work", async (req, res) => {
   const work = new Work(req.body);
   try {
