@@ -1,5 +1,6 @@
 const School = require("../../Models/school");
 const Substitute = require("../../Models/substitute");
+const { sendSub, sendSchool } = require("../methods/methods");
 
 const signup = async (req, res, type) => {
   let modelType = type === "sub" ? Substitute : School;
@@ -9,33 +10,9 @@ const signup = async (req, res, type) => {
     await user.save();
     const token = await user.generateAuthToken();
     if (type === "sub") {
-      res.status(201).send({
-        sub: {
-          _id: user._id,
-          city: user.city,
-          email: user.email,
-          name: user.name,
-          notifications: user.notifications,
-          phone: user.phone,
-          works: user.works,
-        },
-        token,
-        type: "sub",
-      });
+      sendSub(user, token, res);
     } else {
-      res.status(201).send({
-        school: {
-          _id: user._id,
-          city: user.city,
-          email: user.email,
-          name: user.name,
-          notifications: user.notifications,
-          phone: user.phone,
-          works: user.works,
-        },
-        token,
-        type: "school",
-      });
+      sendSchool(user, token, res);
     }
   } catch (err) {
     console.log(err);

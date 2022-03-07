@@ -6,6 +6,14 @@ const schoolRouter = require("./src/routers/school");
 const substituteRouter = require("./src/routers/substitute");
 const { isAuthenticated } = require("./src/shared/middlewares/middlewares");
 
+/* 
+todo:
+1.notifications
+2.send mail
+3.images
+4.update profile
+*/
+
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "*" }));

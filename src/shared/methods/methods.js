@@ -67,19 +67,20 @@ const hashPassword = async (user) => {
   }
 };
 
-const sendSub = async (sub, sign, token, res) => {
-  const now = new Date();
-  let works;
-  if (sign) {
-    works = await Work.find({ date: { $gte: now }, taken: { _id: "" } });
+const sendSub = async (
+  sub,
+  token,
+  res,
+  filter = { taken: { _id: "" }, date: { $gte: new Date() } }
+) => {
+  let works = await Work.find(filter);
 
-    works = works.filter(
-      (work) =>
-        !work.applied.find(
-          (apply) => apply.apply._id.toString() === sub._id.toString()
-        )
-    );
-  }
+  works = works.filter(
+    (work) =>
+      !work.applied.find(
+        (apply) => apply.apply._id.toString() === sub._id.toString()
+      )
+  );
 
   const finalWorks = [];
   sub.works.forEach((work) => {
@@ -88,7 +89,10 @@ const sendSub = async (sub, sign, token, res) => {
     obj.city = work.work.city;
     obj.date = work.work.date;
     obj.hours = work.work.hours;
-    obj.phone = work.work.taken === sub._id.toString() ? work.work.phone : "";
+    obj.phone =
+      work.work.taken._id.toString() === sub._id.toString()
+        ? work.work.phone
+        : "";
     obj.school = work.work.school;
     obj.subject = work.work.subject;
     obj.taken = work.work.taken;
@@ -106,85 +110,43 @@ const sendSub = async (sub, sign, token, res) => {
       ? sub.grades[0]
       : sub.grades.reduce((a, b) => a + b) / grade.votes;
 
-  let response;
-
-  if (sign) {
-    response = {
-      sub: {
-        sub: {
-          _id: sub._id,
-          city: sub.city,
-          email: sub.email,
-          name: sub.name,
-          notifications: sub.notifications,
-          phone: sub.phone,
-          works: finalWorks,
-          grade: grade,
-        },
-        token,
-        works,
-        type: "sub",
-      },
-    };
-  } else {
-    response = {
-      sub: {
-        _id: sub._id,
-        city: sub.city,
-        email: sub.email,
-        name: sub.name,
-        notifications: sub.notifications,
-        phone: sub.phone,
-        works: finalWorks,
-        grade: grade,
-      },
-      token,
-      works,
-      type: "sub",
-    };
-  }
-
-  res.send(response);
+  res.send({
+    sub: {
+      _id: sub._id,
+      city: sub.city,
+      email: sub.email,
+      name: sub.name,
+      phone: sub.phone,
+      works: finalWorks,
+      grade: grade,
+      notifications: sub.notifications,
+    },
+    token,
+    works,
+    type: "sub",
+  });
 };
 
-const sendSchool = async (school, sign, token, res) => {
-  let response;
+const sendSchool = async (school, token, res) => {
+  res.send({
+    school: {
+      _id: school.id,
+      ageGroup: school.ageGroup,
+      city: school.city,
+      name: school.name,
+      phone: school.phone,
+      works: school.works,
+      email: school.email,
+      notifications: school.notifications,
+    },
+    token,
+    type: "school",
+  });
+};
 
-  if (sign) {
-    response = {
-      school: {
-        school: {
-          ageGroup: school.ageGroup,
-          city: school.city,
-          name: school.name,
-          notifications: school.notifications,
-          phone: school.phone,
-          works: school.works,
-          id: school.id,
-          email: school.email,
-        },
-        token,
-        type: "school",
-      },
-    };
-  } else {
-    response = {
-      school: {
-        ageGroup: school.ageGroup,
-        city: school.city,
-        name: school.name,
-        notifications: school.notifications,
-        phone: school.phone,
-        works: school.works,
-        id: school.id,
-        email: school.email,
-      },
-      token,
-      type: "school",
-    };
-  }
-
-  res.send(response);
+const clearNotifications = async (user) => {
+  user.notifications = [];
+  await user.save();
 };
 
 module.exports = {
@@ -195,4 +157,5 @@ module.exports = {
   updateWork,
   sendSub,
   sendSchool,
+  clearNotifications,
 };

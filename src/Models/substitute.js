@@ -76,13 +76,7 @@ const substituteSchema = new mongoose.Schema({
     },
   ],
 
-  notifications: [
-    {
-      notification: {
-        type: String,
-      },
-    },
-  ],
+  notifications: [String],
 
   grades: [Number],
 

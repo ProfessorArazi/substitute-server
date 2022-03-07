@@ -3,10 +3,7 @@ const router = new express.Router();
 const School = require("../Models/school");
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
-const { sendSchool } = require("../shared/methods/methods");
-const { isAuthenticatedSchool } = require("../shared/middlewares/middlewares");
-
-router.post("/school/login", async (req, res) => {});
+const { sendSchool, clearNotifications } = require("../shared/methods/methods");
 
 router.post("/school/work", async (req, res) => {
   const work = new Work(req.body);
@@ -16,7 +13,7 @@ router.post("/school/work", async (req, res) => {
     await school.addWork(work);
     const token = school.tokens[school.tokens.length - 1].token;
 
-    sendSchool(school, false, token, res);
+    sendSchool(school, token, res);
   } catch (error) {
     console.log(error);
   }
@@ -31,7 +28,7 @@ router.put("/school", async (req, res) => {
     );
     const token = school.tokens[school.tokens.length - 1].token;
 
-    sendSchool(school, false, token, res);
+    sendSchool(school, token, res);
   } catch (error) {
     console.log(error);
   }
@@ -49,7 +46,7 @@ router.put("/school/work", async (req, res) => {
     await school.updateWork(req.body.id, work);
     const token = school.tokens[school.tokens.length - 1].token;
 
-    sendSchool(school, false, token, res);
+    sendSchool(school, token, res);
   } catch (error) {
     console.log(error);
   }
@@ -62,7 +59,7 @@ router.post("/school/works/:userId/:id", async (req, res) => {
 
     await school.deleteWork(req.params.id);
     const token = school.tokens[school.tokens.length - 1].token;
-    sendSchool(school, false, token, res);
+    sendSchool(school, token, res);
   } catch (error) {
     console.log(error);
   }
@@ -84,8 +81,11 @@ router.post("/school/works/pick", async (req, res) => {
       );
       await substitute.updateWork(workId, work);
     }
+    sub.notifications.push("קיבלת את העבודה");
+    await sub.save();
+
     const token = school.tokens[school.tokens.length - 1].token;
-    sendSchool(school, false, token, res);
+    sendSchool(school, token, res);
   } catch (error) {
     console.log(error);
   }
@@ -95,17 +95,22 @@ router.post("/school/rate", async (req, res) => {
   const { workId, subId, grade } = req.body;
   const school = req.user;
   const work = await Work.findById(workId);
-  // if (!work.grade) {
-  work.grade = +grade;
-  await work.save();
-  await school.updateWork(workId, work);
-  const sub = await Substitute.findById(subId);
-  sub.grades = sub.grades.concat(grade);
-  await sub.save();
-  const token = school.tokens[school.tokens.length - 1].token;
+  if (!work.grade) {
+    work.grade = +grade;
+    await work.save();
+    await school.updateWork(workId, work);
+    const sub = await Substitute.findById(subId);
+    sub.grades = sub.grades.concat(grade);
+    sub.notifications.push("קיבלת דירוג חדש");
+    await sub.save();
+    const token = school.tokens[school.tokens.length - 1].token;
 
-  sendSchool(school, false, token, res);
-  // }
+    sendSchool(school, token, res);
+  }
+});
+
+router.post("/school/notifications/clear", (req, res) => {
+  clearNotifications(req.user);
 });
 
 module.exports = router;

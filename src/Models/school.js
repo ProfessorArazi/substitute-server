@@ -9,6 +9,7 @@ const {
   hashPassword,
   updateWork,
 } = require("../shared/methods/methods");
+const { type } = require("express/lib/response");
 
 const schoolSchema = new mongoose.Schema({
   name: {
@@ -75,13 +76,7 @@ const schoolSchema = new mongoose.Schema({
     },
   ],
 
-  notifications: [
-    {
-      notification: {
-        type: String,
-      },
-    },
-  ],
+  notifications: [String],
 
   tokens: [
     {

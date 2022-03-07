@@ -13,11 +13,9 @@ const signin = async (req, res, type) => {
     const token = await user.generateAuthToken();
 
     if (type === "sub") {
-      const sub = user;
-      sendSub(sub, true, token, res);
+      sendSub(user, token, res);
     } else {
-      const school = user;
-      sendSchool(school, true, token, res);
+      sendSchool(user, token, res);
     }
   } catch (error) {
     res.status(400).send(error);
