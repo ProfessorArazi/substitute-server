@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("./src/db/mongoose");
+const Work = require("./src/Models/work");
 const usersRouter = require("./src/routers/users");
 const schoolRouter = require("./src/routers/school");
 const substituteRouter = require("./src/routers/substitute");
@@ -22,6 +23,10 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   next();
 });
+
+setInterval(async () => {
+  await Work.deleteMany({ date: { $lt: new Date() } });
+}, 86400000);
 
 app.use(usersRouter);
 app.use(isAuthenticated);

@@ -71,7 +71,7 @@ const sendSub = async (
   sub,
   token,
   res,
-  filter = { taken: { _id: "" }, date: { $gte: new Date() } },
+  filter = { date: { $gte: new Date() } },
   allWorks = true
 ) => {
   let works;

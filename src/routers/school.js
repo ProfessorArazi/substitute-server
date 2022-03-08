@@ -93,6 +93,7 @@ router.post("/school/works/pick", async (req, res) => {
       }
       await substitute.updateWork(workId, work);
     }
+    await Work.deleteOne({ _id: workId });
     mailSender(sub.email, "קיבלת את העבודה");
   } catch (error) {
     console.log(error);
