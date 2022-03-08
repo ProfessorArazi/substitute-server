@@ -3,6 +3,7 @@ const router = new express.Router();
 const School = require("../Models/school");
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
+const mailSender = require("../shared/mailSender/mailSender");
 const { sendSchool, clearNotifications } = require("../shared/methods/methods");
 
 router.post("/school/works", async (req, res) => {
@@ -80,17 +81,19 @@ router.post("/school/works/pick", async (req, res) => {
     await work.save();
     const school = req.user;
     await school.updateWork(workId, work);
+
+    const token = school.tokens[school.tokens.length - 1].token;
+    sendSchool(school, token, res);
     for (let i = 0; i < work.applied.length; i++) {
       const substitute = await Substitute.findById(
         work.applied[i].apply._id.toString()
       );
+      if (sub._id.toString() === substitute._id.toString()) {
+        substitute.notifications.push("קיבלת את העבודה");
+      }
       await substitute.updateWork(workId, work);
     }
-    sub.notifications.push("קיבלת את העבודה");
-    await sub.save();
-
-    const token = school.tokens[school.tokens.length - 1].token;
-    sendSchool(school, token, res);
+    mailSender(sub.email, "קיבלת את העבודה");
   } catch (error) {
     console.log(error);
   }
@@ -104,13 +107,14 @@ router.post("/school/rate", async (req, res) => {
     work.grade = +grade;
     await work.save();
     await school.updateWork(workId, work);
+    const token = school.tokens[school.tokens.length - 1].token;
+
+    sendSchool(school, token, res);
     const sub = await Substitute.findById(subId);
     sub.grades = sub.grades.concat(grade);
     sub.notifications.push("קיבלת דירוג חדש");
     await sub.save();
-    const token = school.tokens[school.tokens.length - 1].token;
-
-    sendSchool(school, token, res);
+    mailSender(sub.email, "קיבלת דירוג חדש");
   }
 });
 

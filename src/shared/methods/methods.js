@@ -71,16 +71,21 @@ const sendSub = async (
   sub,
   token,
   res,
-  filter = { taken: { _id: "" }, date: { $gte: new Date() } }
+  filter = { taken: { _id: "" }, date: { $gte: new Date() } },
+  allWorks = true
 ) => {
-  let works = await Work.find(filter);
+  let works;
 
-  works = works.filter(
-    (work) =>
-      !work.applied.find(
-        (apply) => apply.apply._id.toString() === sub._id.toString()
-      )
-  );
+  if (allWorks) {
+    works = await Work.find(filter);
+
+    works = works.filter(
+      (work) =>
+        !work.applied.find(
+          (apply) => apply.apply._id.toString() === sub._id.toString()
+        )
+    );
+  }
 
   const finalWorks = [];
   sub.works.forEach((work) => {

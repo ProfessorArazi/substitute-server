@@ -8,8 +8,8 @@ const { isAuthenticated } = require("./src/shared/middlewares/middlewares");
 
 /* 
 todo:
-1.notifications
-2.send mail
+1.notifications - finished
+2.send mail - finished
 3.images
 4.update profile
 */
