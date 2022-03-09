@@ -119,6 +119,13 @@ router.post("/school/rate", async (req, res) => {
   }
 });
 
+router.post("/school/image", async (req, res) => {
+  req.user.img = req.body.img;
+  await req.user.save();
+  const token = req.user.tokens[req.user.tokens.length - 1].token;
+  sendSchool(req.user, token, res);
+});
+
 router.post("/school/notifications/clear", (req, res) => {
   clearNotifications(req.user);
 });

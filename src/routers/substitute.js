@@ -80,6 +80,13 @@ router.put("/sub", async (req, res) => {
   }
 });
 
+router.post("/sub/image", async (req, res) => {
+  req.user.img = req.body.img;
+  await req.user.save();
+  const token = req.user.tokens[req.user.tokens.length - 1].token;
+  sendSub(req.user, token, res);
+});
+
 router.post("/sub/notifications/clear", (req, res) => {
   clearNotifications(req.user);
 });
