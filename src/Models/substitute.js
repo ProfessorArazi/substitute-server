@@ -79,6 +79,7 @@ const substituteSchema = new mongoose.Schema({
   notifications: [String],
 
   grades: [Number],
+  img: { type: String, default: "" },
 
   tokens: [
     {

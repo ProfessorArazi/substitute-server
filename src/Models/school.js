@@ -77,6 +77,7 @@ const schoolSchema = new mongoose.Schema({
   ],
 
   notifications: [String],
+  img: { type: String, default: "" },
 
   tokens: [
     {
