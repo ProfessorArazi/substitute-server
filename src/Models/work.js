@@ -98,6 +98,7 @@ workSchema.methods.addApply = async function (apply) {
         name: apply.name,
         phone: apply.phone,
         _id: apply._id,
+        img: apply.img,
         grades: grade,
       },
     });

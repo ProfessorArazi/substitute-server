@@ -106,7 +106,6 @@ substituteSchema.methods.updateWork = async function (workId, work) {
 substituteSchema.statics.findByCredentials = async (email, password) => {
   try {
     const substitute = await Substitute.findOne({ email });
-
     if (!substitute) {
       throw new Error("Unable to login");
     }
