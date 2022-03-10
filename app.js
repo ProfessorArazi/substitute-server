@@ -29,8 +29,7 @@ setInterval(async () => {
 }, 86400000);
 
 app.get("/", (req, res) => {
-  const base64 = fs.readFileSync("./src/deni.png", "base64");
-  res.send({ image: base64 });
+  res.send({ message: "hello" });
 });
 app.use(usersRouter);
 app.use(isAuthenticated);

@@ -11,6 +11,7 @@ const isAuthenticated = async (req, res, next) => {
     if (!user.tokens.find((item) => item.token === token))
       throw new Error("wrong cradentials");
     req.user = user;
+
     next();
   } catch (err) {
     res.status(400).send({ error: "unauthenticated" });

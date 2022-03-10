@@ -78,7 +78,6 @@ const sendSub = async (
 
   if (allWorks) {
     works = await Work.find(filter);
-
     works = works.filter(
       (work) =>
         !work.applied.find(
