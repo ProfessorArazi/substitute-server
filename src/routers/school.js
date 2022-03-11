@@ -6,6 +6,38 @@ const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
 const { sendSchool, clearNotifications } = require("../shared/methods/methods");
 
+let newWorks = [];
+
+const generateMailingList = async () => {
+  let works = await Work.find({ _id: newWorks, taken: { _id: "" } }).select(
+    "city -_id"
+  );
+  const counts = {};
+  for (const work of works) {
+    counts[work.city] = counts[work.city]
+      ? { amount: counts[work.city] + 1, emails: [] }
+      : { amount: 1, emails: [] };
+  }
+  const users = await Substitute.find({
+    city: Object.keys(counts),
+    mailingList: true,
+  }).select({
+    city: 1,
+    email: 1,
+    _id: 0,
+  });
+  users.forEach((user) => counts[user.city].emails.push(user.email));
+  const mails = Object.values(counts);
+  mails.forEach((mail) =>
+    mailSender(mail.emails, `נוספו עוד ${mail.amount} עבודות בעיר שלך`)
+  );
+  newWorks = [];
+};
+
+// setInterval(() => {
+//   generateMailingList();
+// }, 10000);
+
 router.post("/school/works", async (req, res) => {
   const token = req.user.tokens[req.user.tokens.length - 1].token;
   sendSchool(req.user, token, res);
@@ -18,8 +50,8 @@ router.post("/school/work", async (req, res) => {
     const school = req.user;
     await school.addWork(work);
     const token = school.tokens[school.tokens.length - 1].token;
-
     sendSchool(school, token, res);
+    newWorks.push(work._id);
   } catch (error) {
     console.log(error);
   }

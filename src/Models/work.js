@@ -81,7 +81,7 @@ const workSchema = new mongoose.Schema({
   },
 });
 
-workSchema.methods.addApply = async function (apply) {
+workSchema.methods.addApply = function (apply) {
   const grade = {};
   grade.votes = apply.grades.length;
   grade.grade =
@@ -102,7 +102,7 @@ workSchema.methods.addApply = async function (apply) {
         grades: grade,
       },
     });
-    await this.save();
+    return this;
   } catch (e) {
     console.log(e);
   }
