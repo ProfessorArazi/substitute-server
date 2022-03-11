@@ -110,9 +110,8 @@ router.post("/school/works/pick", async (req, res) => {
   try {
     const sub = await Substitute.findById(pickedTeacherId);
     work.taken = sub;
-    await work.save();
     const school = req.user;
-    await school.updateWork(workId, work);
+    await school.updateWork(workId, { ...work, applied: [] });
 
     const token = school.tokens[school.tokens.length - 1].token;
     sendSchool(school, token, res);
@@ -123,7 +122,18 @@ router.post("/school/works/pick", async (req, res) => {
       if (sub._id.toString() === substitute._id.toString()) {
         substitute.notifications.push("קיבלת את העבודה");
       }
-      await substitute.updateWork(workId, work);
+      await substitute.updateWork(workId, {
+        _id: work._id,
+        userId: work.userId,
+        subject: work.subject,
+        date: work.date,
+        ageGroup: work.ageGroup,
+        city: work.city,
+        hours: work.hours,
+        school: work.school,
+        phone: work.phone,
+        taken: { _id: sub._id },
+      });
     }
     await Work.deleteOne({ _id: workId });
     mailSender(sub.email, "קיבלת את העבודה");

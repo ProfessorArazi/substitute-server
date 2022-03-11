@@ -13,6 +13,8 @@ todo:
 2.send mail - finished
 3.images - finished
 4.update profile
+5.picked: remove appliers on pick - finished
+6.mailing list - finished 
 */
 
 const app = express();
