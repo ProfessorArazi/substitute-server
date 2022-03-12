@@ -15,6 +15,9 @@ todo:
 4.update profile
 5.picked: remove appliers on pick - finished
 6.mailing list - finished 
+7. image update: update image on all user works
+8. avoid clashes
+9. error handling
 */
 
 const app = express();
