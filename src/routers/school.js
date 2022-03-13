@@ -75,12 +75,13 @@ router.put("/school", async (req, res) => {
 router.put("/school/work", async (req, res) => {
   const school = req.user;
   try {
-    const work = await Work.findOneAndUpdate(req.body.id, req.body.changes, {
-      new: true,
-    });
-    await work.set("taken", { _id: "" });
-    await work.set("applied", undefined);
-    await work.save();
+    const work = await Work.findOneAndUpdate(
+      req.body.id,
+      { ...req.body.changes, taken: { _id: "" }, applied: [] },
+      {
+        new: true,
+      }
+    );
     await school.updateWork(req.body.id, work);
     const token = school.tokens[school.tokens.length - 1].token;
 

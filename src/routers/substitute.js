@@ -44,7 +44,11 @@ router.post("/sub/works", async (req, res) => {
 router.post("/sub/works/apply", async (req, res) => {
   const sub = req.user;
   try {
-    let work = await Work.findById(req.body.workId);
+    let work = await Work.find(req.body.work)[0];
+    if (!work) {
+      return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
+    }
+
     await sub.addWork(work);
     work.applied = work.applied.concat({
       apply: {
