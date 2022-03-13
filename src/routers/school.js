@@ -75,13 +75,13 @@ router.put("/school", async (req, res) => {
 router.put("/school/work", async (req, res) => {
   const school = req.user;
   try {
-    const work = await Work.findOneAndUpdate(
-      req.body.id,
-      { ...req.body.changes, taken: { _id: "" }, applied: [] },
-      {
-        new: true,
-      }
-    );
+    const work = await Work.findById(req.body.id);
+    if (work.applied.length > 0) {
+      return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
+    }
+    const changesArr = Object.entries(req.body.changes);
+    changesArr.forEach((change) => (work[change[0]] = change[1]));
+    await work.save();
     await school.updateWork(req.body.id, work);
     const token = school.tokens[school.tokens.length - 1].token;
 
@@ -94,6 +94,10 @@ router.put("/school/work", async (req, res) => {
 router.post("/school/works/:userId/:id", async (req, res) => {
   const school = req.user;
   try {
+    const work = await Work.findById(req.params.id);
+    if (work.applied.length > 0) {
+      return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
+    }
     await Work.deleteOne({ id: req.params.id });
 
     await school.deleteWork(req.params.id);

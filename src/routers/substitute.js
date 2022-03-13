@@ -44,7 +44,7 @@ router.post("/sub/works", async (req, res) => {
 router.post("/sub/works/apply", async (req, res) => {
   const sub = req.user;
   try {
-    let work = await Work.find(req.body.work)[0];
+    let work = (await Work.find(req.body.work))[0];
     if (!work) {
       return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
     }
@@ -60,7 +60,6 @@ router.post("/sub/works/apply", async (req, res) => {
     sendSub(sub, token, res);
     work.applied = [];
     work = work.addApply(sub);
-
     const school = await School.findById(work.userId);
     school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
     await school.updateWork(req.body.workId, work);
