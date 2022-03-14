@@ -96,6 +96,37 @@ router.post("/sub/image", async (req, res) => {
   await req.user.save();
   const token = req.user.tokens[req.user.tokens.length - 1].token;
   sendSub(req.user, token, res);
+  try {
+    const schools = await School.find();
+
+    schools.forEach((school) => {
+      school.works.forEach(async (work) => {
+        let modified = false;
+        work.work.applied.forEach(async (apply) => {
+          if (
+            apply.apply._id.toString() === req.user.id &&
+            apply.apply.email === req.user.email
+          ) {
+            apply.apply.img = req.body.img;
+            modified = true;
+          }
+        });
+        if (
+          work.work.taken._id.toString() === req.user.id &&
+          work.work.taken.email === req.user.email
+        ) {
+          work.work.taken.img = req.body.img;
+          modified = true;
+        }
+        if (modified) {
+          school.markModified("works");
+          await school.save();
+        }
+      });
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 router.post("/sub/notifications/clear", (req, res) => {
