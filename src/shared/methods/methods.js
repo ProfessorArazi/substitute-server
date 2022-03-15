@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Work = require("../../Models/work");
+const School = require("../../Models/school");
 
 const generateAuthToken = async (user) => {
   try {
@@ -65,6 +66,38 @@ const hashPassword = async (user) => {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
+};
+
+const updateProfile = async (user, schools, changes) => {
+  const updateProfileInSchool = (user) => {
+    changes.forEach((change) => (user[change[0]] = change[1]));
+  };
+
+  schools.forEach((school) => {
+    school.works.forEach(async (work) => {
+      let modified = false;
+      work.work.applied.forEach(async (apply) => {
+        if (
+          apply.apply._id.toString() === user.id &&
+          apply.apply.email === user.email
+        ) {
+          updateProfileInSchool(apply.apply);
+          modified = true;
+        }
+      });
+      if (
+        work.work.taken._id.toString() === user.id &&
+        work.work.taken.email === user.email
+      ) {
+        updateProfileInSchool(work.work.taken);
+        modified = true;
+      }
+      if (modified) {
+        school.markModified("works");
+        await school.save();
+      }
+    });
+  });
 };
 
 const sendSub = async (
@@ -164,4 +197,5 @@ module.exports = {
   sendSub,
   sendSchool,
   clearNotifications,
+  updateProfile,
 };

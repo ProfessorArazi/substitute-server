@@ -4,7 +4,11 @@ const router = new express.Router();
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
-const { sendSub, clearNotifications } = require("../shared/methods/methods");
+const {
+  sendSub,
+  clearNotifications,
+  updateProfile,
+} = require("../shared/methods/methods");
 
 router.post("/works", async (req, res) => {
   const { city, minHours, maxHours, startDate, endDate } = req.body;
@@ -70,60 +74,31 @@ router.post("/sub/works/apply", async (req, res) => {
 });
 
 router.put("/sub", async (req, res) => {
+  const changes = Object.entries(req.body.changes);
   try {
-    const sub = await Substitute.findOneAndUpdate(
-      req.body.id,
-      req.body.changes,
-      { new: true }
-    );
+    changes.forEach((change) => (req.user[change[0]] = change[1]));
+    await req.user.save();
+    const token = await req.user.generateAuthToken();
 
-    const token = await sub.generateAuthToken();
+    sendSub(req.user, token, res);
 
-    sendSub(sub, token, res);
-    for (let i = 0; i < sub.works.length; i++) {
-      const work = await Work.findById(sub.works[i].work.id.toString());
-      await work.updateApply(req.body.id, sub);
-      const school = await School.findById(work.userId);
-      school.updateWork(work.id.toString(), work);
-    }
+    const userIds = req.user.works.map((work) => work.work.userId);
+    const schools = await School.find({ _id: userIds }).select("works");
+    updateProfile(req.user, schools, changes);
   } catch (error) {
     console.log(error);
   }
 });
 
-router.post("/sub/image", async (req, res) => {
+router.put("/sub/image", async (req, res) => {
   req.user.img = req.body.img;
-  await req.user.save();
-  const token = req.user.tokens[req.user.tokens.length - 1].token;
-  sendSub(req.user, token, res);
   try {
-    const schools = await School.find();
-
-    schools.forEach((school) => {
-      school.works.forEach(async (work) => {
-        let modified = false;
-        work.work.applied.forEach(async (apply) => {
-          if (
-            apply.apply._id.toString() === req.user.id &&
-            apply.apply.email === req.user.email
-          ) {
-            apply.apply.img = req.body.img;
-            modified = true;
-          }
-        });
-        if (
-          work.work.taken._id.toString() === req.user.id &&
-          work.work.taken.email === req.user.email
-        ) {
-          work.work.taken.img = req.body.img;
-          modified = true;
-        }
-        if (modified) {
-          school.markModified("works");
-          await school.save();
-        }
-      });
-    });
+    await req.user.save();
+    const token = req.user.tokens[req.user.tokens.length - 1].token;
+    sendSub(req.user, token, res);
+    const userIds = req.user.works.map((work) => work.work.userId);
+    const schools = await School.find({ _id: userIds }).select("works");
+    updateProfile(req.user, schools, Object.entries({ img: req.body.img }));
   } catch (err) {
     console.log(err);
   }
