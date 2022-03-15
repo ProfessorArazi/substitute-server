@@ -177,6 +177,7 @@ const sendSchool = async (school, token, res) => {
       email: school.email,
       notifications: school.notifications,
       img: school.img,
+      ageGroup: school.ageGroup,
     },
     token,
     type: "school",

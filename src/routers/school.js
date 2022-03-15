@@ -58,15 +58,17 @@ router.post("/school/work", async (req, res) => {
 });
 
 router.put("/school", async (req, res) => {
+  const changes = Object.entries(req.body.changes);
   try {
-    const school = await School.findOneAndUpdate(
-      req.body.id,
-      req.body.changes,
-      { new: true }
-    );
-    const token = school.tokens[school.tokens.length - 1].token;
+    changes.forEach((change) => (req.user[change[0]] = change[1]));
+    await req.user.save();
+    const token = req.user.tokens[req.user.tokens.length - 1].token;
 
-    sendSchool(school, token, res);
+    sendSchool(req.user, token, res);
+    await Work.updateMany(
+      { userId: req.user._id },
+      { ...req.body.changes, school: req.body.changes.name }
+    );
   } catch (error) {
     console.log(error);
   }

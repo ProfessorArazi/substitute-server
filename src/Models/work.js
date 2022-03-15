@@ -23,13 +23,8 @@ const workSchema = new mongoose.Schema({
     required: true,
   },
   ageGroup: {
-    type: Number,
+    type: String,
     required: true,
-    validate(value) {
-      if (value < 1 || value > 3) {
-        throw new Error("wrong group");
-      }
-    },
   },
   city: {
     type: String,

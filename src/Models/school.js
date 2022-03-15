@@ -68,6 +68,11 @@ const schoolSchema = new mongoose.Schema({
     },
   },
 
+  ageGroup: {
+    type: String,
+    required: true,
+  },
+
   works: [
     {
       work: {
