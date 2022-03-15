@@ -73,18 +73,20 @@ const updateProfile = async (user, schools, changes) => {
     changes.forEach((change) => (user[change[0]] = change[1]));
   };
 
-  schools.forEach((school) => {
-    school.works.forEach(async (work) => {
-      let modified = false;
-      work.work.applied.forEach(async (apply) => {
-        if (
-          apply.apply._id.toString() === user.id &&
-          apply.apply.email === user.email
-        ) {
-          updateProfileInSchool(apply.apply);
-          modified = true;
-        }
-      });
+  schools.forEach(async (school) => {
+    let modified = false;
+    school.works.forEach((work) => {
+      if (work.work.applied) {
+        work.work.applied.forEach((apply) => {
+          if (
+            apply.apply._id.toString() === user.id &&
+            apply.apply.email === user.email
+          ) {
+            updateProfileInSchool(apply.apply);
+            modified = true;
+          }
+        });
+      }
       if (
         work.work.taken._id.toString() === user.id &&
         work.work.taken.email === user.email
@@ -92,11 +94,11 @@ const updateProfile = async (user, schools, changes) => {
         updateProfileInSchool(work.work.taken);
         modified = true;
       }
-      if (modified) {
-        school.markModified("works");
-        await school.save();
-      }
     });
+    if (modified) {
+      school.markModified("works");
+      await school.save();
+    }
   });
 };
 
@@ -158,6 +160,7 @@ const sendSub = async (
       grade: grade,
       notifications: sub.notifications,
       img: sub.img,
+      mailingList: sub.mailingList,
     },
     token,
     works,

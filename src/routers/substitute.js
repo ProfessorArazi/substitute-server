@@ -1,7 +1,6 @@
 const express = require("express");
 const School = require("../Models/school");
 const router = new express.Router();
-const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
 const {
@@ -60,9 +59,9 @@ router.post("/sub/works/apply", async (req, res) => {
       },
     });
     await work.save();
+    work.applied.pop();
     const token = sub.tokens[sub.tokens.length - 1].token;
     sendSub(sub, token, res);
-    work.applied = [];
     work = work.addApply(sub);
     const school = await School.findById(work.userId);
     school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
