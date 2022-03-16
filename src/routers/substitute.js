@@ -66,7 +66,9 @@ router.post("/sub/works/apply", async (req, res) => {
     const school = await School.findById(work.userId);
     school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
     await school.updateWork(req.body.workId, work);
-    mailSender(school.email, "מישהו הציע את עצמו לאחת העבודות שפרסמת");
+    if (school.mailingList) {
+      mailSender(school.email, "מישהו הציע את עצמו לאחת העבודות שפרסמת");
+    }
   } catch (error) {
     console.log(error);
   }

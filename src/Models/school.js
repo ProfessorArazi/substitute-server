@@ -82,7 +82,10 @@ const schoolSchema = new mongoose.Schema({
   ],
 
   notifications: [String],
+
   img: { type: String, default: "" },
+
+  mailingList: { type: Boolean, default: false },
 
   tokens: [
     {

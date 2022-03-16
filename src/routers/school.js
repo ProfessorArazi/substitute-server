@@ -1,6 +1,5 @@
 const express = require("express");
 const router = new express.Router();
-const School = require("../Models/school");
 const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
@@ -100,7 +99,7 @@ router.post("/school/works/:userId/:id", async (req, res) => {
     if (work.applied.length > 0) {
       return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
     }
-    await Work.deleteOne({ id: req.params.id });
+    await Work.deleteOne({ _id: req.params.id });
 
     await school.deleteWork(req.params.id);
     const token = school.tokens[school.tokens.length - 1].token;
@@ -143,7 +142,9 @@ router.post("/school/works/pick", async (req, res) => {
       });
     }
     await Work.deleteOne({ _id: workId });
-    mailSender(sub.email, "קיבלת את העבודה");
+    if (sub.mailingList) {
+      mailSender(sub.email, "קיבלת את העבודה");
+    }
   } catch (error) {
     console.log(error);
   }
@@ -164,7 +165,9 @@ router.post("/school/rate", async (req, res) => {
     sub.grades = sub.grades.concat(grade);
     sub.notifications.push("קיבלת דירוג חדש");
     await sub.save();
-    mailSender(sub.email, "קיבלת דירוג חדש");
+    if (sub.mailingList) {
+      mailSender(sub.email, "קיבלת דירוג חדש");
+    }
   }
 });
 
