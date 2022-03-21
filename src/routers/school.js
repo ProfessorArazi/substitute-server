@@ -33,9 +33,9 @@ const generateMailingList = async () => {
   newWorks = [];
 };
 
-// setInterval(() => {
-//   generateMailingList();
-// }, 10000);
+setInterval(() => {
+  generateMailingList();
+}, 86400000);
 
 router.post("/school/works", async (req, res) => {
   const token = req.user.tokens[req.user.tokens.length - 1].token;
@@ -76,17 +76,28 @@ router.put("/school", async (req, res) => {
 router.put("/school/work", async (req, res) => {
   const school = req.user;
   try {
-    const work = await Work.findById(req.body.id);
-    if (work.applied.length > 0) {
-      return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
-    }
+    const work = school.works.find(
+      (work) => work.work._id.toString() === req.body.id
+    ).work;
     const changesArr = Object.entries(req.body.changes);
     changesArr.forEach((change) => (work[change[0]] = change[1]));
-    await work.save();
     await school.updateWork(req.body.id, work);
     const token = school.tokens[school.tokens.length - 1].token;
-
     sendSchool(school, token, res);
+
+    await Work.findOneAndUpdate(req.body.id, req.body.changes);
+
+    if (work.applied.length > 0) {
+      const appliers = await Substitute.find({
+        _id: work.applied.map((apply) => apply.apply._id),
+      });
+      for (let i = 0; i < appliers.length; i++) {
+        appliers[i].notifications.push(
+          `העבודה בתאריך ${work.date} נערכה על ידי ${work.school}`
+        );
+        await appliers[i].updateWork(req.body.id, work);
+      }
+    }
   } catch (error) {
     console.log(error);
   }
@@ -96,14 +107,24 @@ router.post("/school/works/:userId/:id", async (req, res) => {
   const school = req.user;
   try {
     const work = await Work.findById(req.params.id);
-    if (work.applied.length > 0) {
-      return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
-    }
+
     await Work.deleteOne({ _id: req.params.id });
 
     await school.deleteWork(req.params.id);
     const token = school.tokens[school.tokens.length - 1].token;
     sendSchool(school, token, res);
+
+    if (work.applied.length > 0) {
+      const appliers = await Substitute.find({
+        _id: work.applied.map((apply) => apply.apply._id),
+      });
+      for (let i = 0; i < appliers.length; i++) {
+        appliers[i].notifications.push(
+          `העבודה בתאריך ${work.date} נמחקה על ידי ${work.school}`
+        );
+        await appliers[i].deleteWork(req.params.id);
+      }
+    }
   } catch (error) {
     console.log(error);
   }
