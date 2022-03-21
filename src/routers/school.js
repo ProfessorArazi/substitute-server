@@ -113,6 +113,13 @@ router.post("/school/works/pick", async (req, res) => {
   const { workId, pickedTeacherId } = req.body;
 
   const work = await Work.findById(workId);
+  if (
+    !work.applied.find(
+      (apply) => apply.apply._id.toString() === pickedTeacherId
+    )
+  ) {
+    return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
+  }
   try {
     const sub = await Substitute.findById(pickedTeacherId);
     work.taken = sub;

@@ -74,6 +74,29 @@ router.post("/sub/works/apply", async (req, res) => {
   }
 });
 
+router.post("/sub/works/apply/cancel", async (req, res) => {
+  const sub = req.user;
+
+  try {
+    let work = await Work.findById(req.body.workId);
+    if (!work) {
+      return res.send({ error: "משהו השתבש, נסה לרענן את הדף..." });
+    }
+    await sub.deleteWork(req.body.workId);
+    const token = sub.tokens[sub.tokens.length - 1].token;
+    sendSub(sub, token, res);
+    const school = await School.findById(req.body.userId).select("works");
+    const index = work.applied.findIndex(
+      (apply) => apply.apply._id.toString() === req.body.substituteId
+    );
+    work.applied.splice(index, 1);
+    await work.save();
+    await school.updateWork(req.body.workId, work);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 router.put("/sub", async (req, res) => {
   const changes = Object.entries(req.body.changes);
   try {

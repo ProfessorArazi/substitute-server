@@ -9,7 +9,6 @@ const {
   hashPassword,
   updateWork,
 } = require("../shared/methods/methods");
-const { type } = require("express/lib/response");
 
 const schoolSchema = new mongoose.Schema({
   name: {

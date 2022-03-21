@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Work = require("../../Models/work");
-const School = require("../../Models/school");
 
 const generateAuthToken = async (user) => {
   try {

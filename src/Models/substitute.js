@@ -8,6 +8,7 @@ const {
   addWork,
   hashPassword,
   updateWork,
+  deleteWork,
 } = require("../shared/methods/methods");
 
 const substituteSchema = new mongoose.Schema({
@@ -106,6 +107,10 @@ substituteSchema.methods.addWork = async function (work) {
 
 substituteSchema.methods.updateWork = async function (workId, work) {
   updateWork(this, workId, work);
+};
+
+substituteSchema.methods.deleteWork = async function (id) {
+  deleteWork(this, id);
 };
 
 substituteSchema.statics.findByCredentials = async (email, password) => {
