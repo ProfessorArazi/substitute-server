@@ -85,7 +85,7 @@ const substituteSchema = new mongoose.Schema({
 
   mailingList: { type: Boolean, default: false },
 
-  desc: String,
+  desc: { type: String, default: "" },
 
   tokens: [
     {
