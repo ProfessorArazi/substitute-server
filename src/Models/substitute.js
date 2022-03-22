@@ -87,6 +87,8 @@ const substituteSchema = new mongoose.Schema({
 
   desc: { type: String, default: "" },
 
+  demo: { type: Boolean, default: false },
+
   tokens: [
     {
       token: {

@@ -86,6 +86,8 @@ const schoolSchema = new mongoose.Schema({
 
   mailingList: { type: Boolean, default: false },
 
+  demo: { type: Boolean, default: false },
+
   tokens: [
     {
       token: {
