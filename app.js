@@ -1,12 +1,13 @@
 const express = require("express");
+require("dotenv").config();
 const cors = require("cors");
-const fs = require("fs");
 require("./src/db/mongoose");
 const Work = require("./src/Models/work");
 const usersRouter = require("./src/routers/users");
 const schoolRouter = require("./src/routers/school");
 const substituteRouter = require("./src/routers/substitute");
 const { isAuthenticated } = require("./src/shared/middlewares/middlewares");
+
 /* 
 todo:
 1.notifications - finished
@@ -17,7 +18,7 @@ todo:
 6.mailing list - finished 
 7.image update: update image on all user works - finished
 8.avoid clashes - finished
-9.error handling
+9.error handling - finished
 */
 
 const app = express();
