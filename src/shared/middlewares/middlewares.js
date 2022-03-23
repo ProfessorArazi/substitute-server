@@ -6,7 +6,9 @@ const isAuthenticated = async (req, res, next) => {
   const { email, substituteId, userId, type } = req.body;
   const modelType = type === "sub" ? Substitute : School;
   try {
-    const user = await modelType.findById(substituteId || userId);
+    const user = await modelType.findById(
+      type === "sub" ? substituteId : userId
+    );
     if (user.email !== email) throw new Error("wrong cradentials");
     if (!user.tokens.find((item) => item.token === token))
       throw new Error("wrong cradentials");

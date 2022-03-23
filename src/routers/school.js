@@ -181,10 +181,11 @@ router.post("/school/works/pick", async (req, res) => {
 router.post("/school/rate", async (req, res) => {
   const { workId, subId, grade } = req.body;
   const school = req.user;
-  const work = await Work.findById(workId);
+  const work = school.works.find(
+    (work) => work.work._id.toString() === workId
+  ).work;
   if (!work.grade) {
     work.grade = +grade;
-    await work.save();
     await school.updateWork(workId, work);
     const token = school.tokens[school.tokens.length - 1].token;
 
