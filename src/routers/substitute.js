@@ -53,16 +53,10 @@ router.post("/sub/works/apply", async (req, res) => {
     }
 
     await sub.addWork(work);
-    work.applied = work.applied.concat({
-      apply: {
-        _id: sub._id,
-      },
-    });
+    work = work.addApply(sub);
     await work.save();
-    work.applied.pop();
     const token = sub.tokens[sub.tokens.length - 1].token;
     sendSub(sub, token, res);
-    work = work.addApply(sub);
     const school = await School.findById(work.userId);
     school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
     await school.updateWork(req.body.workId, work);
