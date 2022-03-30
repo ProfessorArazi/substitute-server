@@ -18,7 +18,7 @@ todo:
 6.mailing list - finished 
 7.image update: update image on all user works - finished
 8.avoid clashes - finished
-9.error handling - finished
+9.error handling - finishedd
 */
 
 const app = express();
