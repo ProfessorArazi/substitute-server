@@ -42,9 +42,11 @@ const addWork = async (user, work) => {
 const updateWork = async (user, id, work) => {
   try {
     user.works.splice(
-      [user.works.findIndex((x) => x.work._id.toString() === id)],
+      [user.works.findIndex((x) => x.work._id.toString() === id.toString())],
       1,
-      { work }
+      {
+        work,
+      }
     );
     await user.save();
   } catch (e) {

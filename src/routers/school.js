@@ -113,7 +113,7 @@ router.post("/school/works/:userId/:id", async (req, res) => {
     const token = school.tokens[school.tokens.length - 1].token;
     sendSchool(school, token, res);
 
-    if (work.applied.length > 0) {
+    if (work.applied && work.applied.length > 0) {
       const appliers = await Substitute.find({
         _id: work.applied.map((apply) => apply.apply._id),
       });
