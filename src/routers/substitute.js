@@ -3,11 +3,7 @@ const School = require("../Models/school");
 const router = new express.Router();
 const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
-const {
-  sendSub,
-  clearNotifications,
-  updateProfile,
-} = require("../shared/methods/methods");
+const { sendSub, clearNotifications } = require("../shared/methods/methods");
 
 router.post("/works", async (req, res) => {
   const { city, minHours, maxHours, startDate, endDate } = req.body;
@@ -104,20 +100,6 @@ router.put("/sub", async (req, res) => {
     updateProfile(req.user, schools, changes);
   } catch (error) {
     console.log(error);
-  }
-});
-
-router.put("/sub/image", async (req, res) => {
-  req.user.img = req.body.img;
-  try {
-    await req.user.save();
-    const token = req.user.tokens[req.user.tokens.length - 1].token;
-    sendSub(req.user, token, res);
-    const userIds = req.user.works.map((work) => work.work.userId);
-    const schools = await School.find({ _id: userIds }).select("works");
-    updateProfile(req.user, schools, Object.entries({ img: req.body.img }));
-  } catch (err) {
-    console.log(err);
   }
 });
 

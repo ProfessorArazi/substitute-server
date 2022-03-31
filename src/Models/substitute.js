@@ -81,7 +81,13 @@ const substituteSchema = new mongoose.Schema({
 
   grades: [Number],
 
-  img: { type: String, default: "" },
+  img: {
+    name: String,
+    img: {
+      data: Buffer,
+      contentType: String,
+    },
+  },
 
   mailingList: { type: Boolean, default: false },
 
