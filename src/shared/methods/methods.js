@@ -41,6 +41,7 @@ const addWork = async (user, work) => {
 
 const updateWork = async (user, id, work) => {
   try {
+    // console.log(user.works);
     user.works.splice(
       [user.works.findIndex((x) => x.work._id.toString() === id.toString())],
       1,

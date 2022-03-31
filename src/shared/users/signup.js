@@ -15,7 +15,7 @@ const signup = async (req, res, type) => {
       sendSchool(user, token, res);
     }
   } catch (err) {
-    console.log(err);
+    res.status(400).send(err);
   }
 };
 module.exports = signup;
