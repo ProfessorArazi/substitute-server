@@ -4,6 +4,7 @@ const Substitute = require("../Models/substitute");
 const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
 const { sendSchool, clearNotifications } = require("../shared/methods/methods");
+const moment = require("moment");
 
 let newWorks = [];
 
@@ -92,7 +93,9 @@ router.put("/school/work", async (req, res) => {
       });
       for (let i = 0; i < appliers.length; i++) {
         appliers[i].notifications.push(
-          `העבודה בתאריך ${work.date} נערכה על ידי ${work.school}`
+          `העבודה בתאריך ${moment(work.date.getTime()).format(
+            "DD.MM.YYYY"
+          )} נערכה על ידי ${work.school}`
         );
         await appliers[i].updateWork(req.body.id, work);
       }
@@ -119,7 +122,9 @@ router.post("/school/works/:userId/:id", async (req, res) => {
       });
       for (let i = 0; i < appliers.length; i++) {
         appliers[i].notifications.push(
-          `העבודה בתאריך ${work.date} נמחקה על ידי ${work.school}`
+          `העבודה בתאריך ${moment(work.date.getTime()).format(
+            "DD.MM.YYYY"
+          )} נמחקה על ידי ${work.school}`
         );
         await appliers[i].deleteWork(req.params.id);
       }
