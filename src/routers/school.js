@@ -93,7 +93,7 @@ router.put("/school/work", async (req, res) => {
       });
       for (let i = 0; i < appliers.length; i++) {
         appliers[i].notifications.push(
-          `העבודה בתאריך ${moment(work.date.getTime()).format(
+          `העבודה בתאריך ${moment(new Date(work.date).getTime()).format(
             "DD.MM.YYYY"
           )} נערכה על ידי ${work.school}`
         );
