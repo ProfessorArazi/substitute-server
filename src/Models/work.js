@@ -94,6 +94,7 @@ workSchema.methods.addApply = function (apply) {
         phone: apply.phone,
         _id: apply._id,
         img: apply.img,
+        desc: apply.desc,
         grades: grade,
       },
     });
