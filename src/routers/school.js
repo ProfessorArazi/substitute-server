@@ -78,6 +78,25 @@ router.put("/school", async (req, res) => {
       { userId: req.user._id },
       { ...req.body.changes, school: req.body.changes.name }
     );
+
+    const appliersIds = [];
+
+    req.user.works.forEach((work) =>
+      work.work.applied.forEach((apply) => appliersIds.push(apply.apply._id))
+    );
+    const appliers = await Substitute.find({ _id: appliersIds });
+    for (let i = 0; i < appliers.length; i++) {
+      for (let j = 0; j < appliers[i].works.length; j++) {
+        if (appliers[i].works[j].work.userId === req.user._id.toString()) {
+          appliers[i].works[j].work = {
+            ...appliers[i].works[j].work,
+            ...req.body.changes,
+            school: req.body.changes.name,
+          };
+          await appliers[i].save();
+        }
+      }
+    }
   } catch (error) {
     console.log(error);
   }
