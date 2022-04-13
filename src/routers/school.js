@@ -60,7 +60,16 @@ router.post("/school/work", async (req, res) => {
 router.put("/school", async (req, res) => {
   const changes = Object.entries(req.body.changes);
   try {
-    changes.forEach((change) => (req.user[change[0]] = change[1]));
+    for (let i = 0; i < changes.length; i++) {
+      req.user[changes[i][0]] = changes[i][1];
+      for (let j = 0; j < req.user.works.length; j++) {
+        if (req.user.works[j].work[changes[i][0]]) {
+          req.user.works[j].work[changes[i][0]] = changes[i][1];
+        } else if (changes[i][0] === "name") {
+          req.user.works[j].work.school = changes[i][1];
+        }
+      }
+    }
     await req.user.save();
     const token = req.user.tokens[req.user.tokens.length - 1].token;
 
