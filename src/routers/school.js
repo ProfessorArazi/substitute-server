@@ -81,8 +81,10 @@ router.put("/school", async (req, res) => {
 
     const appliersIds = [];
 
-    req.user.works.forEach((work) =>
-      work.work.applied.forEach((apply) => appliersIds.push(apply.apply._id))
+    req.user.works.forEach(
+      (work) =>
+        work.work.applied &&
+        work.work.applied.forEach((apply) => appliersIds.push(apply.apply._id))
     );
     const appliers = await Substitute.find({ _id: appliersIds });
     for (let i = 0; i < appliers.length; i++) {
