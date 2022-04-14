@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const zxcvbn = require("zxcvbn");
 const bcrypt = require("bcryptjs");
 const {
   generateAuthToken,
@@ -60,11 +59,6 @@ const schoolSchema = new mongoose.Schema({
     required: true,
     minlength: 8,
     trim: true,
-    validate(value) {
-      if (zxcvbn(value).score < 2) {
-        throw new Error("invalid password");
-      }
-    },
   },
 
   ageGroup: {
