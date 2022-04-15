@@ -1,4 +1,4 @@
-# substitutes-server
+# Substitutes-Server
 
 This is the server of substitutes site.<br/>
 The site connects schools with substitute teachers. <br />
