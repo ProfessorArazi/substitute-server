@@ -5,13 +5,6 @@ const signup = require("../shared/users/signup");
 const Substitute = require("../Models/substitute");
 const School = require("../Models/school");
 
-const deleteDemosFromDb = async () => {
-  await Substitute.deleteMany({ demo: true });
-  await School.deleteMany({ demo: true });
-};
-
-setInterval(deleteDemosFromDb, 86400000); // run at night
-
 router.post("/sub", (req, res) => {
   signup(req, res, "sub");
 });

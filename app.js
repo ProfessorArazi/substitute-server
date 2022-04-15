@@ -8,19 +8,6 @@ const schoolRouter = require("./src/routers/school");
 const substituteRouter = require("./src/routers/substitute");
 const { isAuthenticated } = require("./src/shared/middlewares/middlewares");
 
-/* 
-todo:
-1.notifications - finished
-2.send mail - finished
-3.images - finished
-4.update profile - finished
-5.picked: remove appliers on pick - finished
-6.mailing list - finished 
-7.image update: update image on all user works - finished
-8.avoid clashes - finished
-9.error handling - finishedd
-*/
-
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(cors({ origin: "*" }));
