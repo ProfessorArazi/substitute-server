@@ -1,6 +1,6 @@
 # Substitutes-Server
 
-This is the server of substitutes site.<br/>
+This is the server side of substitutes site.<br/>
 The site connects schools with substitute teachers. <br />
           This site provides a solution in cases where teachers are absent from
           school. <br /> You can signup as a school or as a substitute teacher.
