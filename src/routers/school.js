@@ -1,6 +1,7 @@
 const express = require("express");
 const router = new express.Router();
 const Substitute = require("../Models/substitute");
+const School = require("../Models/school");
 const Work = require("../Models/work");
 const mailSender = require("../shared/mailSender/mailSender");
 const { sendSchool, clearNotifications } = require("../shared/methods/methods");
@@ -70,6 +71,7 @@ router.put("/school", async (req, res) => {
         }
       }
     }
+    await School.findByIdAndUpdate(req.user._id, { works: req.user.works });
     await req.user.save();
     const token = req.user.tokens[req.user.tokens.length - 1].token;
 
