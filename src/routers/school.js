@@ -118,7 +118,7 @@ router.put("/school/work", async (req, res) => {
     await school.updateWork(req.body.id, work);
     const token = school.tokens[school.tokens.length - 1].token;
     sendSchool(school, token, res);
-    await Work.findOneAndUpdate(req.body.id, req.body.changes);
+    await Work.findByIdAndUpdate(req.body.id, req.body.changes);
 
     if (work.applied && work.applied.length > 0) {
       const appliers = await Substitute.find({
