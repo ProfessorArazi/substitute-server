@@ -29,8 +29,9 @@ const generateMailingList = async () => {
   });
   users.forEach((user) => counts[user.city].emails.push(user.email));
   const mails = Object.values(counts);
-  mails.forEach((mail) =>
-    mailSender(mail.emails, `נוספו עוד ${mail.amount} עבודות בעיר שלך`)
+  mails.forEach(
+    async (mail) =>
+      await mailSender(mail.emails, `נוספו עוד ${mail.amount} עבודות בעיר שלך`)
   );
   newWorks = [];
 };
@@ -207,7 +208,7 @@ router.post("/school/works/pick", async (req, res) => {
     }
     await Work.deleteOne({ _id: workId });
     if (sub.mailingList) {
-      mailSender(sub.email, "קיבלת את העבודה");
+      await mailSender(sub.email, "קיבלת את העבודה");
     }
   } catch (error) {
     console.log(error);
@@ -231,7 +232,7 @@ router.post("/school/rate", async (req, res) => {
     sub.notifications.push("קיבלת דירוג חדש");
     await sub.save();
     if (sub.mailingList) {
-      mailSender(sub.email, "קיבלת דירוג חדש");
+      await mailSender(sub.email, "קיבלת דירוג חדש");
     }
   }
 });

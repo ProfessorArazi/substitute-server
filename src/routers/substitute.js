@@ -60,7 +60,7 @@ router.post("/sub/works/apply", async (req, res) => {
     school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
     await school.updateWork(work._id, work);
     if (school.mailingList) {
-      mailSender(school.email, "מישהו הציע את עצמו לאחת העבודות שפרסמת");
+      await mailSender(school.email, "מישהו הציע את עצמו לאחת העבודות שפרסמת");
     }
   } catch (error) {
     console.log(error);
