@@ -192,6 +192,9 @@ router.post("/school/works/pick", async (req, res) => {
       );
       if (sub._id.toString() === substitute._id.toString()) {
         substitute.notifications.push("קיבלת את העבודה");
+        if (sub.mailingList) {
+          await mailSender(sub.email, "קיבלת את העבודה");
+        }
       }
       await substitute.updateWork(workId, {
         _id: work._id,
@@ -207,9 +210,6 @@ router.post("/school/works/pick", async (req, res) => {
       });
     }
     await Work.deleteOne({ _id: workId });
-    if (sub.mailingList) {
-      await mailSender(sub.email, "קיבלת את העבודה");
-    }
   } catch (error) {
     console.log(error);
   }
