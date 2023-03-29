@@ -57,11 +57,11 @@ router.post("/sub/works/apply", async (req, res) => {
     const token = sub.tokens[sub.tokens.length - 1].token;
     sendSub(sub, token, res);
     const school = await School.findById(work.userId);
-    school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
-    await school.updateWork(work._id, work);
     if (school.mailingList) {
       await mailSender(school.email, "מישהו הציע את עצמו לאחת העבודות שפרסמת");
     }
+    school.notifications.push("מישהו הציע את עצמו לאחת העבודות שפרסמת");
+    await school.updateWork(work._id, work);
   } catch (error) {
     console.log(error);
   }
